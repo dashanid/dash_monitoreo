@@ -1,0 +1,233 @@
+## Dash
+
+import dash
+from dash import no_update
+from dash import Dash, dash_table, dcc, callback, Output, Input, html
+
+## specific dash libreries
+
+import dash_daq as daq
+import dash_bootstrap_components as dbc
+import dash_cytoscape as cyto
+
+## visualization libreries
+
+import plotly.express as px
+import plotly.graph_objects as go
+
+## data manipulation
+
+import pandas as pd
+
+import sqlite3, base64
+
+# time procesing 
+
+from datetime import datetime
+from datetime import timedelta
+
+from random import randint
+
+
+conn = sqlite3.connect('students.db')
+cursor = conn.cursor()
+
+cursor.execute("SELECT * FROM hitos")
+my_data = cursor.fetchall()
+conn.close()
+
+current_date = datetime.now().date()
+
+df = pd.DataFrame([{'Hito': task[1], 'Inicio': task[2], 'Término': task[3], 'Persona a cargo': task[4], 'Porcentaje': task[5]} for task in my_data[:10]])
+
+df_pc = pd.DataFrame([{'Plataforma' : f'plataforma_{i}', 'Documentación' : randint(0,10)} for i in range(1,9)])
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+app = dash.Dash(__name__, external_stylesheets = [dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
+
+theme = {
+    'dark': True,
+    'detail': '#007439',
+    'primary': '#00EA64',
+    'secondary': '#6E6E6E',
+}
+
+fig_1 = px.timeline(
+    df,
+    x_start = "Inicio",
+    x_end = "Término",
+    y = "Hito",
+    title = "Hitos",
+    color = 'Porcentaje',
+    color_continuous_scale = 'rdylgn',
+    range_color = [20,100]
+)
+
+fig_2 = px.timeline(
+    df,
+    x_start = "Inicio",
+    x_end = "Término",
+    y = "Hito",
+    title = "VPN",
+    color = 'Porcentaje',
+    color_continuous_scale = 'rdylgn',
+    range_color = [20,100]
+)
+
+fig_1.add_shape(
+    go.layout.Shape(
+        type="line",
+        x0=current_date,
+        x1=current_date,
+        y0=0,
+        y1=1,
+        xref="x",
+        yref="paper",
+        line=dict(color="red", width=2)
+    )
+)
+
+fig_2.add_shape(
+    go.layout.Shape(
+        type="line",
+        x0=current_date,
+        x1=current_date,
+        y0=0,
+        y1=1,
+        xref="x",
+        yref="paper",
+        line=dict(color="red", width=2)
+    )
+)
+
+
+app.layout = dbc.Container([
+    html.Div(className='row', children='Panel de control de licitaciones.',
+             style={'textAlign': 'center', 'color': 'black', 'fontSize': 30}),
+    
+    html.Div(className='row', children='Resumen.',
+             style={'textAlign': 'center', 'color': 'black', 'fontSize': 25}),
+    
+    html.Div(className='row', children=[
+        dbc.Button('Resumen', id='button-resumen', style={'width': '100px', 'height': '40px'}),
+        dbc.Button('VPN', id='button-vpn', style={'width': '100px', 'height': '40px'}),
+        dbc.Button('Hitos', id='button-hitos', style={'width': '100px', 'height': '40px'}),
+        dbc.Button('Informes', id='button-informes', style={'width': '100px', 'height': '40px'}),
+        dbc.Button('Pagos', id='button-pagos', style={'width': '100px', 'height': '40px'}),
+        dbc.Button('Documentación', id='button-documentacion', style={'width': '150px', 'height': '40px'}),
+        dcc.Dropdown(
+            id='seleccion-de-plataforma',
+            options=[
+                {'label': 'General', 'value': 'general'},
+                {'label': 'Centros', 'value': 'centros'},
+                {'label': 'DataCiencia', 'value': 'dataciencia'},
+                {'label': 'ISSN', 'value': 'issn'},
+                {'label': 'Latindex', 'value': 'latindex'},
+                {'label': 'Portal del Investigador', 'value': 'pdi'},
+                {'label': 'Repositorio', 'value': 'repositorio'},
+                {'label': 'Scielo', 'value': 'scielo'},
+                {'label': 'Territorios', 'value': 'territorios'},
+            ],
+            value='general',
+            style={'width': '300px', 'margin-left': '20px'}
+        ),
+    ]),
+
+    html.Br(),
+    
+    html.Div(
+        id = 'vpn-warning'    
+    ),
+    
+    # html.Div(
+    #     className = 'row',
+    #     children = dbc.Alert([
+    #         html.I(className = "bi bi-x-octagon-fill me-2"),
+    #         "Las siguientes VPN están vencidas",
+    #         ],
+    #         color = "danger",
+    #         className = "d-flex align-items-center",
+    # )),
+    
+    dbc.Row([
+        dbc.Col(
+            dcc.Graph(
+                figure = fig_1,
+                style = {'height': '400px', 'width': '550px'}
+            ),
+            width = 6
+        ),
+        dbc.Col(
+            dcc.Graph(
+                figure = fig_2,
+                style = {'height': '400px', 'width': '550px'}
+            ),
+            width = 6
+        )
+    ]),
+    
+    dbc.Row([
+        dbc.Col([
+            html.Br(),
+            html.Div(
+                children='Ejecución presupuestaria',
+                style={'textAlign': 'center', 'color': 'black', 'fontSize': 20}
+            ),
+            html.Br(),
+            html.Center(
+                daq.Gauge(
+                    showCurrentValue = True,
+                    color={"gradient":True,"ranges":{"green":[00,60],"yellow":[60,80],"red":[80,100]}},
+                    min=0,
+                    max=100,
+                    value=60,
+                    units = '%',
+                    # label = 'Ejecución Presupuestaria',
+                    # color = theme['primary'],
+                    id='darktheme-daq-gauge',
+                    className='dark-theme-control'
+                )
+            )
+        ],
+            width = 6
+        ),
+        dbc.Col(
+            dcc.Graph(
+                figure = px.pie(
+                    df_pc,
+                    values = 'Documentación',
+                    names = 'Plataforma',
+                    title = 'Documentación por plataforma'
+                ),
+                style = {'height': '400px', 'width': '600px'}
+            ),
+            width = 4
+        )
+    ])
+])
+
+@app.callback(
+    Output('vpn-warning', 'children'),
+    Input('seleccion-de-plataforma', 'value')
+)
+
+def update_output(selected_value):
+    df['Término'] = pd.to_datetime(df['Término'], format = '%Y-%m-%d')
+    late_vpn = df.loc[lambda x: (0 < (x['Término'] - pd.Timestamp(current_date)).dt.days) & ((pd.to_datetime(x['Término']) -  pd.Timestamp(current_date)).dt.days < 5)]
+    if not late_vpn.empty:
+        out = [
+        dbc.Alert([
+            html.I(className = "bi bi-exclamation-triangle-fill me-2"),
+            "Las siguientes VPN están por vencer",
+            ],
+            color = "warning",
+            className = "d-flex align-items-center",
+        ),
+        dash_table.DataTable(data = late_vpn.to_dict('records'))
+    ]
+        return out
+    else:
+        return None
+
+if __name__ == '__main__':
+    app.run_server(debug=True, jupyter_mode = 'external')
