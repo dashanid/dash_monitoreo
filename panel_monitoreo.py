@@ -2,7 +2,6 @@
 
 import dash
 from dash import no_update
-import jupyter_dash
 from dash import Dash, dash_table, dcc, callback, Output, Input, html
 
 ## specific dash libreries
@@ -35,7 +34,6 @@ import openpyxl
 import datetime
 from datetime import timedelta
 
-jupyter_dash.default_mode = "external"
 
 def date_format(date_str):
     if not pd.isna(date_str):
