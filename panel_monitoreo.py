@@ -410,4 +410,4 @@ def generate_file(year, month):
     return new_df
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port = 1919, jupyter_mode="external")
+    app.run_server(debug=True)
