@@ -60,7 +60,7 @@ def preprocess_data(file_bytes):
         
     dfs_2 = []
     for plataforma in plataformas:
-        ds = pd.read_excel('data.xlsx', usecols = 'H:L', header = 3, sheet_name = plataforma)
+        ds = pd.read_excel(file_bytes, usecols = 'H:L', header = 3, sheet_name = plataforma)
         ds.dropna(axis = 0, how = 'all', inplace = True)
         ds['hito'] = ds['Hitos de pago ítem 2: Desarrollos'] + ' Desarrollo'
         mask = ds['hito'].notna()
