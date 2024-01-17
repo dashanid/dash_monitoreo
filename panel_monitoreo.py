@@ -114,7 +114,7 @@ for sheet in xls.sheet_names:
     if 'Fechas' in sheet:
         plataformas.append(sheet)
 
-df_pc = pd.DataFrame([{'Plataforma' : plataforma, 'Documentación' : randint(0,10)} for plataforma in plataformas])
+df_pc = pd.DataFrame([{'Plataforma' : plataforma, 'Documentación' : randint(0,5)} for plataforma in plataformas])
 
 theme = {
     'dark': True,
@@ -173,21 +173,13 @@ fig_2.add_shape(
     )
 )
 
-fig_3 = px.pie(
+fig_3 = px.line_polar(
     df_pc,
-    values = 'Documentación',
-    names = 'Plataforma',
-    title = 'Documentación por plataforma'
+    r = 'Documentación',
+    theta = 'Plataforma',
+    title = 'Documentación por plataforma',
+    line_close = True
 )
-
-fig_3.update_layout(legend=dict(
-    orientation="h",
-    # entrywidth=70,
-    yanchor="top",
-    y=0,
-    xanchor="right",
-    x=1
-))
 
 df_montos = df.loc[lambda x: ~x['Monto a pagar'].isna()]
 presupuesto = df_montos['Monto a pagar'].sum()
@@ -380,8 +372,6 @@ def update_github(data, file_name):
     try:
         content_type, content_string = data.split(',')
         decoded = base64.b64decode(content_string)
-        df = pd.read_excel(BytesIO(decoded), sheet_name = 'Hoja 1')
-        # csv_encoded = df.to_csv(index = False).encode('utf-8')
         auth = Auth.Token(access_token)
         g = Github(auth = auth)
         repo = g.get_repo('dashanid/data_monitoreo')
