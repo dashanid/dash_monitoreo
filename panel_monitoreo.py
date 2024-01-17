@@ -45,6 +45,11 @@ def date_format(date_str):
 
 def preprocess_data(file_bytes):
     dfs = []
+    xls = pd.ExcelFile(file_bytes)
+    plataformas = []
+    for sheet in xls.sheet_names:
+        if 'Fechas' in sheet:
+            plataformas.append(sheet)
     for plataforma in plataformas:
         ds = pd.read_excel('data.xlsx', usecols = 'A:E', header = 3, sheet_name = plataforma)
         ds.dropna(axis = 0, how = 'all', inplace = True)
