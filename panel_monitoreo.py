@@ -201,6 +201,8 @@ for plataforma in plataformas:
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets = [dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
 
+server = app.server
+
 app.layout = dbc.Container([
     html.Div(className='row', children='Panel de control de licitaciones.',
              style={'textAlign': 'center', 'color': 'black', 'fontSize': 30}),
