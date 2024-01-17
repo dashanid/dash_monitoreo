@@ -51,7 +51,7 @@ def preprocess_data(file_bytes):
         if 'Fechas' in sheet:
             plataformas.append(sheet)
     for plataforma in plataformas:
-        ds = pd.read_excel('data.xlsx', usecols = 'A:E', header = 3, sheet_name = plataforma)
+        ds = pd.read_excel(file_bytes, usecols = 'A:E', header = 3, sheet_name = plataforma)
         ds.dropna(axis = 0, how = 'all', inplace = True)
         ds['Inicio'] = ds['Fecha entrega'].shift(1, fill_value = pd.to_datetime('2023-01-01'))
         # ds['hito'] = ds['MES'].fillna('') + ds['Hito'].fillna('') + ' ' + Plataforma
