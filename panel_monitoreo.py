@@ -114,7 +114,7 @@ for sheet in xls.sheet_names:
     if 'Fechas' in sheet:
         plataformas.append(sheet)
 
-df_pc = pd.DataFrame([{'Plataforma' : plataforma, 'Documentación' : randint(0,5)} for plataforma in plataformas])
+df_pc = pd.DataFrame([{'Plataforma' : plataforma.split(' ')[-1], 'Documentación' : randint(0,5)} for plataforma in plataformas])
 
 theme = {
     'dark': True,
