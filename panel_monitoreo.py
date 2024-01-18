@@ -29,11 +29,15 @@ from io import BytesIO, StringIO
 import os
 from random import randint
 
-import openpyxl
+import base64
+
+from github import Github
+from github import Auth
 
 import datetime
 from datetime import timedelta
 
+################### Estandarizar formatos de fecha entre las columnas de excel #############
 
 def date_format(date_str):
     if not pd.isna(date_str):
@@ -42,6 +46,8 @@ def date_format(date_str):
             return pd.to_datetime(date, dayfirst = True)
         else:
             return date_str
+
+############# Lectura del archivo, de las distintas tablas presentes en las distintas hojas
 
 def preprocess_data(file_bytes):
     dfs = []
@@ -84,6 +90,7 @@ def preprocess_data(file_bytes):
     return df_merged.copy()[['hito', 'Inicio', 'Fecha', 'Monto a pagar', 'Plataforma']]
 
 months = {'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8, 'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12}
+
 
 
 access_token = os.environ['token']
